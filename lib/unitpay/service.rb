@@ -8,7 +8,7 @@ module Unitpay
     end
 
     def payment_url(sum, account, desc, options = {})
-      'https://unitpay.ru/pay/22760-0f8de?sum=10&account=demo&desc=Описание+платежа'
+      URI.escape(url(sum, account, desc, options))
     end
 
     def payment_params(sum, account, desc, options = {})
@@ -27,10 +27,6 @@ module Unitpay
       Digest::MD5.hexdigest( [account, currency, desc, sum, secret_key].join )
     end
 
-    def extra_params(options)
-      options.select { |key, _| EXTRA_OPTIONS.include?(key) }
-    end
-
     def main_params(sum, account, desc, use_sign)
       use_sign = true if use_sign.nil?
       sign = use_sign ? { sign: calculate_sign(sum, account, desc) } : {}
@@ -41,6 +37,18 @@ module Unitpay
         desc: desc,
         currency: currency
       }.merge(sign)
+    end
+
+    def extra_params(options)
+      options.select { |key, _| EXTRA_OPTIONS.include?(key) }
+    end
+
+    def url(sum, account, desc, options)
+      "#{ URL }/#{ public_key }?#{ to_query(payment_params(sum, account, desc, options)) }"
+    end
+
+    def to_query(hash)
+      hash.map { |k, v| "#{k}=#{v}" }.join('&')
     end
   end
 end

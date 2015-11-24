@@ -3,8 +3,8 @@ describe Unitpay::Service do
 
   let(:sum) { 100 }
   let(:account) { 1 }
-  let(:desc) { 'Описание платежа' }
-  let(:valid_sign) { 'de753ccdea0b430f80a2389f1b2e78b3' }
+  let(:desc) { 'description' }
+  let(:valid_sign) { '77e882339ca432b8ad9594b55d33ce59' }
 
   describe '#calculate_sign' do
     subject { service.send(:calculate_sign, sum, account, desc) }
@@ -48,5 +48,11 @@ describe Unitpay::Service do
 
       it { is_expected.to eq(sum: sum, account: account, desc: desc, currency: 'RUB', locale: 'ru') }
     end
+  end
+
+  describe '#payment_url' do
+    subject { service.payment_url(sum, account, desc) }
+
+    it { is_expected.to eq 'https://unitpay.ru/pay/public_key?sum=100&account=1&desc=description&currency=RUB&sign=77e882339ca432b8ad9594b55d33ce59' }
   end
 end
