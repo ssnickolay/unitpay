@@ -1,10 +1,11 @@
 module Unitpay
   module Controller
-    # extend ActiveSupport::Concern
-    #
-    # included do
-    #   skip_before_filter :verify_authenticity_token
-    # end
+    # Skip RequestForgeryProtection
+    # skip_before_filter :verify_authenticity_token
+
+    class ServiceNotImplementedError < StandardError; end
+    class PayNotImplementedError < StandardError; end
+    class ErrorNotImplementedError < StandardError; end
 
     def notify
       if service.valid_notify_sign?(params[:params])
@@ -26,7 +27,7 @@ module Unitpay
     private
 
     def service
-      raise NotImplementedError
+      raise ServiceNotImplementedError
     end
 
     def check
@@ -34,11 +35,11 @@ module Unitpay
     end
 
     def pay
-      raise NotImplementedError
+      raise PayNotImplementedError
     end
 
     def error
-      raise NotImplementedError
+      raise ErrorNotImplementedError
     end
 
     def success_request

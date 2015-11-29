@@ -88,7 +88,7 @@ describe Unitpay::Controller do
 
         it 'should render success request' do
           controller = TestController.new
-          expect{ controller.notify }.to raise_error(NotImplementedError)
+          expect{ controller.notify }.to raise_error(Unitpay::Controller::PayNotImplementedError)
         end
       end
     end
@@ -101,7 +101,7 @@ describe Unitpay::Controller do
 
         it 'should render success request' do
           controller = TestController.new
-          expect{ controller.notify }.to raise_error(NotImplementedError)
+          expect{ controller.notify }.to raise_error(Unitpay::Controller::ErrorNotImplementedError)
         end
       end
     end
