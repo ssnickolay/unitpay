@@ -1,5 +1,2 @@
-require "unitpay/version"
-
-module Unitpay
-  # Your code goes here...
-end
+require 'unitpay/version'
+require 'unitpay/service'
