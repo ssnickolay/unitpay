@@ -33,7 +33,7 @@ describe Unitpay::Controller do
   describe '#notify' do
     let(:params) do
       {
-        method: 'check',
+        method: method,
         params: {
           account: 'test',
           date: '2015-11-29 12:29:00',
@@ -51,11 +51,12 @@ describe Unitpay::Controller do
       }
     end
 
-    describe '#check' do
-      before do
-        allow_any_instance_of(TestController).to receive(:params).and_return(params)
+    before do
+      allow_any_instance_of(TestController).to receive(:params).and_return(params)
+    end
 
-      end
+    describe '#check' do
+      let(:method) { 'check' }
 
       context 'when valid signature' do
         let(:sum) { 10 }
@@ -75,6 +76,32 @@ describe Unitpay::Controller do
           controller = TestController.new
           controller.notify
           expect(controller.request).to eq(json: { error: { message: 'Неверная сигнатура' } })
+        end
+      end
+    end
+
+    describe '#pay' do
+      let(:method) { 'pay' }
+
+      context 'when valid signature' do
+        let(:sum) { 10 }
+
+        it 'should render success request' do
+          controller = TestController.new
+          expect{ controller.notify }.to raise_error(NotImplementedError)
+        end
+      end
+    end
+
+    describe '#error' do
+      let(:method) { 'error' }
+
+      context 'when valid signature' do
+        let(:sum) { 10 }
+
+        it 'should render success request' do
+          controller = TestController.new
+          expect{ controller.notify }.to raise_error(NotImplementedError)
         end
       end
     end
