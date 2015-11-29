@@ -28,6 +28,39 @@ describe Unitpay::Service do
     end
   end
 
+  describe '#valid_notify_sign?' do
+    subject { service.valid_notify_sign?(params) }
+
+    let(:params) do
+      {
+        account: 'test',
+        date: '2015-11-29 12:29:00',
+        operator: 'mts',
+        paymentType: 'mc',
+        projectId: '22760',
+        phone: '9001234567',
+        profit: '9.5',
+        sum: amount,
+        orderSum: '10.00',
+        sign: '22905cade6376990a030b2200f664842',
+        orderCurrency: 'RUB',
+        unitpayId: '87370'
+      }
+    end
+
+    context 'when valid' do
+      let(:amount) { 10 }
+
+      it { is_expected.to be_truthy }
+    end
+
+    context 'when valid' do
+      let(:amount) { 11 }
+
+      it { is_expected.to be_falsey }
+    end
+  end
+
   describe '#payment_params' do
     subject { service.payment_params(sum, account, desc, options) }
 
