@@ -19,12 +19,22 @@ module Unitpay
       current_sign == calculate_sign(sum, account, desc)
     end
 
+    def valid_notify_sign?(params)
+      params[:sign] == calculate_notify_sign(params)
+    end
+
     private
 
     attr_reader :public_key, :secret_key, :currency
 
     def calculate_sign(sum, account, desc)
       Digest::MD5.hexdigest( [account, currency, desc, sum, secret_key].join )
+    end
+
+    def calculate_notify_sign(params)
+      params.delete(:sign)
+      values = Hash[ params.sort ].values + [ secret_key ]
+      Digest::MD5.hexdigest(values.join)
     end
 
     def main_params(sum, account, desc, use_sign)
