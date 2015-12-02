@@ -3,8 +3,8 @@ module Unitpay
     EXTRA_OPTIONS = [:locale, :hideHint, :hideBackUrl, :hideOrderCost, :hideMenu, :hideDesc, :hideOtherMethods]
     URL = 'https://unitpay.ru/pay'
 
-    def initialize(public_key, secret_key, currency = 'RUB')
-      @public_key, @secret_key, @currency = public_key, secret_key, currency
+    def initialize(public_key, secret_key, use_sign = true, currency = 'RUB')
+      @public_key, @secret_key, @use_sign, @currency = public_key, secret_key, use_sign, currency
     end
 
     def payment_url(sum, account, desc, options = {})
@@ -12,7 +12,18 @@ module Unitpay
     end
 
     def payment_params(sum, account, desc, options = {})
-      main_params(sum, account, desc, options[:use_sign]).merge(extra_params(options))
+      main_params(sum, account, desc).merge(extra_params(options))
+    end
+
+    def params_for_widget(sum, account, desc)
+      {
+        publicKey: public_key,
+        sum: sum,
+        account: account,
+        desc: desc,
+        currency: 'RUB',
+        sign: calculate_sign(sum, account, desc)
+      }
     end
 
     def valid_sign?(current_sign, sum, account, desc)
@@ -25,7 +36,7 @@ module Unitpay
 
     private
 
-    attr_reader :public_key, :secret_key, :currency
+    attr_reader :public_key, :secret_key, :currency, :use_sign
 
     def calculate_sign(sum, account, desc)
       Digest::MD5.hexdigest( [account, currency, desc, sum, secret_key].join )
@@ -37,8 +48,7 @@ module Unitpay
       Digest::MD5.hexdigest(values.join)
     end
 
-    def main_params(sum, account, desc, use_sign)
-      use_sign = true if use_sign.nil?
+    def main_params(sum, account, desc)
       sign = use_sign ? { sign: calculate_sign(sum, account, desc) } : {}
 
       {

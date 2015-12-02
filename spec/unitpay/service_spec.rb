@@ -1,10 +1,11 @@
 describe Unitpay::Service do
-  let(:service) { described_class.new('public_key', 'secret_key') }
+  let(:service) { described_class.new('public_key', 'secret_key', use_sign) }
 
   let(:sum) { 100 }
   let(:account) { 1 }
   let(:desc) { 'description' }
   let(:valid_sign) { '77e882339ca432b8ad9594b55d33ce59' }
+  let(:use_sign) { true }
 
   describe '#calculate_sign' do
     subject { service.send(:calculate_sign, sum, account, desc) }
@@ -62,22 +63,22 @@ describe Unitpay::Service do
   end
 
   describe '#payment_params' do
+    let(:options) { {} }
     subject { service.payment_params(sum, account, desc, options) }
 
     context 'when simple params' do
-      let(:options) { {} }
-
       it { is_expected.to eq(sum: sum, account: account, desc: desc, sign: valid_sign, currency: 'RUB') }
     end
 
     context 'when dont use sign' do
-      let(:options) { { use_sign: false } }
+      let(:use_sign) { false }
 
       it { is_expected.to eq(sum: sum, account: account, desc: desc, currency: 'RUB') }
     end
 
     context 'when set extra params' do
-      let(:options) { { use_sign: false, locale: 'ru' } }
+      let(:use_sign) { false }
+      let(:options) { { locale: 'ru' } }
 
       it { is_expected.to eq(sum: sum, account: account, desc: desc, currency: 'RUB', locale: 'ru') }
     end
