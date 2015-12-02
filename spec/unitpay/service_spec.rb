@@ -29,6 +29,7 @@ describe Unitpay::Service do
     end
   end
 
+
   describe '#valid_notify_sign?' do
     subject { service.valid_notify_sign?(params) }
 
@@ -82,6 +83,12 @@ describe Unitpay::Service do
 
       it { is_expected.to eq(sum: sum, account: account, desc: desc, currency: 'RUB', locale: 'ru') }
     end
+  end
+
+  describe '#params_for_widget' do
+    subject { service.params_for_widget(sum, account, desc) }
+
+    it { is_expected.to eq(publicKey: 'public_key', sum: sum, account: account, desc: desc, sign: valid_sign, currency: 'RUB') }
   end
 
   describe '#payment_url' do

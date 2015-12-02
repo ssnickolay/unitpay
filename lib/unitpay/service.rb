@@ -16,14 +16,7 @@ module Unitpay
     end
 
     def params_for_widget(sum, account, desc)
-      {
-        publicKey: public_key,
-        sum: sum,
-        account: account,
-        desc: desc,
-        currency: 'RUB',
-        sign: calculate_sign(sum, account, desc)
-      }
+      main_params(sum, account, desc).merge(publicKey: public_key)
     end
 
     def valid_sign?(current_sign, sum, account, desc)
