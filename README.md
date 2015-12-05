@@ -3,7 +3,7 @@
 [![Gem Version](https://badge.fury.io/rb/unitpay.svg)](https://badge.fury.io/rb/unitpay)
 [![Build Status](https://travis-ci.org/ssnikolay/unitpay.svg?branch=master)](https://travis-ci.org/ssnikolay/unitpay)
 [![Code Climate](https://codeclimate.com/github/ssnikolay/unitpay.svg)](https://codeclimate.com/github/ssnikolay/unitpay)
-[![Test Coverage](https://codeclimate.com/github/ssnikolay/payanyway/badges/unitpay.svg)](https://codeclimate.com/github/ssnikolay/unitpay)
+[![Test Coverage](https://codeclimate.com/github/ssnikolay/unitpay/badges/coverage.svg)](https://codeclimate.com/github/ssnikolay/unitpay/coverage)
 
 ## Contributing
 
