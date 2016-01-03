@@ -36,14 +36,14 @@ gem 'unitpay'
 Чтобы получить доступ к сервисному классу, достаточно проинициализировать его с `public` и `secret` ключами.
 
 ```ruby
-service = Unitpay::Service.new('unitpay_public_key', 'unitpay_secret_key')
+Unitpay::Service.new('unitpay_public_key', 'unitpay_secret_key')
 ```
 
 По умолчанию курс валюты выставлен в `RUB`, а использование сигнатуры в `true`.
 Переопределить их можно и при инициализации.
 ```ruby
 use_sign, currency = false, 'RUB'
-service = Unitpay::Service.new('unitpay_public_key', 'unitpay_secret_key', use_sign, currency)
+Unitpay::Service.new('unitpay_public_key', 'unitpay_secret_key', use_sign, currency)
 ```
 Чтобы включить проверку сигнатуры со стороны `unitpay`, необходимо нажать на "замочек" в настройках вашего партнера.
 
@@ -108,7 +108,7 @@ class UnitpayController < ApplicationController
     # вызывается при оповещении магазина об
     # успешной оплате пользователем заказа и после проверки сигнатуры.
     #
-    # ВНИМАНИЕ: правильный ответ будет сгенерирован автоматически, не нужно использовать (render\redirect_to)!
+    # ВНИМАНИЕ: правильный ответ будет сгенерирован автоматически (не нужно использовать render\redirect_to)!
     # order = Order.find(params[:params][:account])
     # order.payed!
   end
@@ -116,7 +116,7 @@ class UnitpayController < ApplicationController
   def error
     # вызывается при оповещении магазина об ошибке при оплате заказа.
     #
-    # ВНИМАНИЕ: правильный ответ будет сгенерирован автоматически, не нужно использовать (render\redirect_to)!
+    # ВНИМАНИЕ: правильный ответ будет сгенерирован автоматически (не нужно использовать render\redirect_to)!
     # order = Order.find(params[:params][:account])
     # order.error!
   end
@@ -155,22 +155,22 @@ class Unitpay
 
   tryUnitpay = ->
     $.ajax({
-        type: 'POST',
-        dataType: 'json'
-        url: '/orders' # любой другой путь сохранения\создания вашего платежа (заказа). Не забудьте добавить его в routes.rb
-        data: $('#id-your-form').serialize(),
-        success: (data) ->
-          payment = new UnitPay()
-          payment.createWidget(data)
-          payment.success ->
-            console.log('Unitpay: успешный платеж')
-          payment.error ->
-            # ошибка платежного шлюза (например, пользователь не завершил оплату)
-            console.log('Unitpay: ошибка платежа')
-        error: -> 
-          # ошибка при сохранении заказа (например, ошибки валидации)
-          console.log('Ошибка сохранения\создания платежа (заказа)')
-      })
+      type: 'POST',
+      dataType: 'json'
+      url: '/orders' # любой другой путь сохранения\создания вашего платежа (заказа). Не забудьте добавить его в routes.rb
+      data: $('#id-your-form').serialize(),
+      success: (data) ->
+        payment = new UnitPay()
+        payment.createWidget(data)
+        payment.success ->
+          console.log('Unitpay: успешный платеж')
+        payment.error ->
+          # ошибка платежного шлюза (например, пользователь не завершил оплату)
+          console.log('Unitpay: ошибка платежа')
+      error: ->
+        # ошибка при сохранении заказа (например, ошибки валидации)
+        console.log('Ошибка сохранения\создания платежа (заказа)')
+    })
 $ ->
   unitpay = new Unitpay
   unitpay.bindEvents()
@@ -183,12 +183,12 @@ $ ->
 ```ruby
 class OrdersController < ApplicationController
   def create
-      order = Order.new(permitted_params)
-      if order.save
-        render json: unitpay_service.params_for_widget(order.total_cost, order.id, order.description)
-      else
-        render json: order.errors, status: :unprocessable_entity
-      end
+    order = Order.new(permitted_params)
+    if order.save
+      render json: unitpay_service.params_for_widget(order.total_cost, order.id, order.description)
+    else
+      render json: order.errors, status: :unprocessable_entity
+    end
   end
   
   private
