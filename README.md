@@ -106,11 +106,19 @@ class UnitpayController < ApplicationController
 
   def pay
     # вызывается при оповещении магазина об
-    # успешной оплате пользователем заказа.
-    # ВНИМАНИЕ: При использовании сигнатуры проверка будет пройдена автоматически!
+    # успешной оплате пользователем заказа и после проверки сигантуры.
+    #
+    # ВНИМАНИЕ: правильный ответ будет сгенерирован автометически, не нужно использовать (render\redirect_to)!
     # order = Order.find(params[:params][:account])
     # order.payed!
-    # redirect_to root_path, notify: 'Ваш заказ успешно оплачен.'
+  end
+  
+  def error
+    # вызывается при оповещении магазина об ошибке при оплате заказа.
+    #
+    # ВНИМАНИЕ: правильный ответ будет сгенерирован автометически, не нужно использовать (render\redirect_to)!
+    # order = Order.find(params[:params][:account])
+    # order.error!
   end
  
   private
@@ -182,7 +190,7 @@ class OrdersController < ApplicationController
         render json: order.errors, status: :unprocessable_entity
       end
   end
-  
+
   private
   
   def unitpay_service
