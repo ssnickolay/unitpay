@@ -13,8 +13,8 @@ Gem для подключение к платежному шлюзу [unitpay](h
 - [Подключение](#setup)
 - [Использование](#usage)
     - [Получение ссылки для оплаты](#payment_url)
+    - [Модуль для обработки запросов от unitpay (для RubyOnRails)](#rails)
     - [Подключение виджета для карт оплат](#widget)
-    - [Использования в Rails](#rails)
 
 ##<a name="installation"></a> Установка
 
@@ -45,7 +45,7 @@ service = Unitpay::Service.new('unitpay_public_key', 'unitpay_secret_key')
 use_sign, currency = false, 'RUB'
 service = Unitpay::Service.new('unitpay_public_key', 'unitpay_secret_key', use_sign, currency)
 ```
-Что бы включить проверку сигнатуры со стороны `unitpay` необходимо нажать на "замочек" в настройках вашего парнтера.
+Что бы включить проверку сигнатуры со стороны `unitpay` необходимо нажать на "замочек" в настройках вашего партнера.
 
 ![Settings](https://raw.github.com/ssnikolay/unitpay/master/unitpay.jpg)
 
@@ -59,91 +59,22 @@ service = Unitpay::Service.new('unitpay_public_key', 'unitpay_secret_key', use_s
 
 ###<a name="payment_url"></a> Получение ссылки для оплаты
 
-Что бы получить ссылку для оплаты необходимо задать 3 главных параметра:
+Что бы получить ссылку для оплаты необходимо использовать метод `payment_url`, в который нужно передать следующие параметры:
 
- Название    | Описание
----------------------------|:-----------------------------------------
+ Название           | Описание
+--------------------|:-----------------------------------------
 `sum`               | Цена, которую необходимо оплатить пользователю
-`account`          | Внутренний идентификатор платежа (или заказа), однозначно определяющий его в магазине.
-`desc`          | Описание платежа, отображающееся пользователю на стороне шлюза.
+`account`           | Внутренний идентификатор платежа (или заказа), однозначно определяющий его в магазине.
+`desc`              | Описание платежа, отображающееся пользователю на стороне шлюза.
 
 ```ruby
 sum, account, desc = 100, 1, 'description'
 service = Unitpay::Service.new('unitpay_public_key', 'unitpay_secret_key')
-servive.payment_url(sum, account, desc)
+service.payment_url(sum, account, desc)
 # => 'https://unitpay.ru/pay/public_key?sum=100&account=1&desc=description...'
 ```
 
-###<a name="widget"></a> Подключение виджета для карт оплат
-
-Рассмотрим случай, когда необходимо показать виджет оплаты после усешного заполнения checkout формы заказа.
-
-Подключите на странице `checkout` внешний скрипт:
-```html
-<script src="https://widget.unitpay.ru/unitpay.js"></script>
-```
-
-**unitpay.js.coffe**
-```coffee
-class Unitpay
-  bindEvents: ->
-    @handleAfterSubmitForm()
-
-  handleAfterSubmitForm: ->
-    $('#id-your-form').submit (e) ->
-      e.preventDefault()
-      tryUnitpay() # при сабмите формы пытаемся получить параметры для виджета
-
-  tryUnitpay = ->
-    $.ajax({
-        type: 'POST',
-        dataType: 'json'
-        url: '/orders' # любой другой путь сохранения\создания вашего платежа (заказа). Не забудьте добавить его в routes.rb
-        data: $('#id-your-form').serialize(),
-        success: (data) ->
-          payment = new UnitPay()
-          payment.createWidget(data)
-          payment.success ->
-            console.log('Unitpay: успешный платеж')
-          payment.error ->
-            # ошибка платежного шлюза (например пользователь не завершил оплату)
-            console.log('Unitpay: ошибка платежа')
-        error: -> 
-          # ошибка при сохранении заказа (например ошибки валидации)
-          console.log('Ошибка сохранения\создания платежа (заказа)')
-      })
-$ ->
-  unitpay = new Unitpay
-  unitpay.bindEvents()
-
-```
-
-**orders_controller.rb**
-```ruby
-class OrdersController < ApplicationController
-  def create
-      order = Order.new(permitted_params)
-      if order.save
-        render json: unitpay_service.params_for_widget(order.total_cost, order.id, order.description)
-      else
-        render json: order.errors
-      end
-  end
-  
-  private
-  
-  def unitpay_service
-    # Внимание: не храните ключи в открытом виде в репозитории.
-    # используйте  конфигурационные файлы (https://github.com/binarylogic/settingslogic) 
-    Unitpay::Service.new('public_key', 'secret_key')
-  end
-  
-  def permitted_params
-    # используйте strong params
-  end
-end
-
-###<a name="rails"></a> Использования в Rails
+###<a name="rails"></a> Модуль для обработки запросов от unitpay (для RubyOnRails)
 
 Добавьте роуты для **unitpay** (`config/routes.rb`)
 
@@ -190,6 +121,80 @@ class UnitpayController < ApplicationController
   end
 end
 ```
+
+###<a name="widget"></a> Подключение виджета для карт оплат
+
+Рассмотрим один из способов реализации случая, когда необходимо показать виджет оплаты после заполнения пользователем формы заказа.
+
+1. Подключите на странице внешний скрипт:
+
+```html
+<script src="https://widget.unitpay.ru/unitpay.js"></script>
+```
+
+2. Добавьте обработчик формы заказа
+
+**unitpay.js.coffe**
+```coffee
+class Unitpay
+  bindEvents: ->
+    @handleAfterSubmitForm()
+
+  handleAfterSubmitForm: ->
+    $('#id-your-form').submit (e) ->
+      e.preventDefault()
+      tryUnitpay() # при сабмите формы пытаемся получить параметры для виджета
+
+  tryUnitpay = ->
+    $.ajax({
+        type: 'POST',
+        dataType: 'json'
+        url: '/orders' # любой другой путь сохранения\создания вашего платежа (заказа). Не забудьте добавить его в routes.rb
+        data: $('#id-your-form').serialize(),
+        success: (data) ->
+          payment = new UnitPay()
+          payment.createWidget(data)
+          payment.success ->
+            console.log('Unitpay: успешный платеж')
+          payment.error ->
+            # ошибка платежного шлюза (например пользователь не завершил оплату)
+            console.log('Unitpay: ошибка платежа')
+        error: -> 
+          # ошибка при сохранении заказа (например ошибки валидации)
+          console.log('Ошибка сохранения\создания платежа (заказа)')
+      })
+$ ->
+  unitpay = new Unitpay
+  unitpay.bindEvents()
+
+```
+
+3. Измените контроллер так, что бы он отдавал необходимый `json` ответ
+
+**orders_controller.rb**
+```ruby
+class OrdersController < ApplicationController
+  def create
+      order = Order.new(permitted_params)
+      if order.save
+        render json: unitpay_service.params_for_widget(order.total_cost, order.id, order.description)
+      else
+        render json: order.errors, status: :unprocessable_entity
+      end
+  end
+  
+  private
+  
+  def unitpay_service
+    # Внимание: не храните ключи в открытом виде в репозитории.
+    # используйте  конфигурационные файлы (https://github.com/binarylogic/settingslogic) 
+    Unitpay::Service.new('public_key', 'secret_key')
+  end
+  
+  def permitted_params
+    # используйте strong params
+  end
+end
 
 ## Contributing
 
