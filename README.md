@@ -11,10 +11,9 @@ Gem для подключения к платежному шлюзу [unitpay](h
 
 - [Установка](#installation)
 - [Подключение](#setup)
-- [Использование](#usage)
-    - [Получение ссылки для оплаты](#payment_url)
-    - [Модуль для обработки запросов от unitpay (для RubyOnRails)](#rails)
-    - [Подключение виджета для карт оплаты](#widget)
+- [Получение ссылки для оплаты](#payment_url)
+- [Использование в  Rails](#rails)
+- [Подключение виджета для карт оплаты](#widget)
 
 ##<a name="installation"></a> Установка
 
@@ -54,10 +53,7 @@ Unitpay::Service.new('unitpay_public_key', 'unitpay_secret_key', use_sign, curre
 3. Необходимо изменить `example.com` на адрес вашего приложения.
 4. Необходимо изменить `example.com` на адрес вашего приложения.
 
-
-##<a name="usage"></a> Использование
-
-###<a name="payment_url"></a> Получение ссылки для оплаты
+##<a name="payment_url"></a> Получение ссылки для оплаты
 
 Чтобы получить ссылку для оплаты, необходимо использовать метод `payment_url`, в который нужно передать следующие параметры:
 
@@ -74,9 +70,9 @@ service.payment_url(sum, account, desc)
 # => 'https://unitpay.ru/pay/public_key?sum=100&account=1&desc=description...'
 ```
 
-###<a name="rails"></a> Модуль для обработки запросов от unitpay (для RubyOnRails)
+##<a name="rails"></a> Использование в  Rails
 
-Добавьте роуты для **unitpay** (`config/routes.rb`)
+Добавьте роуты для получения запросов от **unitpay** (`config/routes.rb`)
 
 ```ruby
 scope :unitpay do
@@ -91,6 +87,7 @@ end
 ```ruby
 class UnitpayController < ApplicationController
   include Unitpay::Controller
+  skip_before_filter :verify_authenticity_token
  
   def success
     # вызывается при отправке шлюзом пользователя на Success URL.
@@ -104,6 +101,8 @@ class UnitpayController < ApplicationController
     # (во время принятия платежа возникла ошибка)
   end
 
+  private
+
   def pay
     # вызывается при оповещении магазина об
     # успешной оплате пользователем заказа и после проверки сигнатуры.
@@ -115,13 +114,12 @@ class UnitpayController < ApplicationController
   
   def error
     # вызывается при оповещении магазина об ошибке при оплате заказа.
+    # При отсутствии логики обработки ошибок на стороне приложения оставить метод пустым.
     #
     # ВНИМАНИЕ: правильный ответ будет сгенерирован автоматически (не нужно использовать render\redirect_to)!
-    # order = Order.find(params[:params][:account])
-    # order.error!
+    # puts params[errorMessage]
+    # => Текст ошибки, присланный unitpay
   end
- 
-  private
 
   def service
     # ВНИМАНИЕ: обязательный метод! Используется при проверке сигнатуры.
@@ -130,7 +128,29 @@ class UnitpayController < ApplicationController
 end
 ```
 
-###<a name="widget"></a> Подключение виджета для карт оплаты
+[Описание параметров, передаваемых при запросе.
+](http://help.unitpay.ru/article/35-confirmation-payment)
+
+### Исключения при обработке запросов
+
+Важно понимать, что до вызова метода `pay` происходит проверка только сигнатуры.
+Прочие проверки на соответствие платежа правилам логики приложения остаются на вашей совести (например, эквивалентность суммы оплаты и суммы заказа).
+Для удобства обработки таких ситуаций существует зарезервированное исключение `Unitpay::Controller::RuntimeException`. В этом случае в ответе будет передан текст вашей ошибки.
+
+Пример:
+
+```ruby
+def pay
+  order = Order.find(params[:params][:account])
+  if order.total_cost == params[:params][:sum]
+    order.payed!
+  else
+    raise Unitpay::Controller::RuntimeException.new('Неверная сумма оплаты')
+  end
+end
+```
+
+##<a name="widget"></a> Подключение виджета для карт оплаты
 
 Рассмотрим один из способов реализации случая, когда необходимо показать виджет оплаты после заполнения пользователем формы заказа.
 

@@ -3,9 +3,10 @@ module Unitpay
     # Skip RequestForgeryProtection
     # skip_before_filter :verify_authenticity_token
 
-    class ServiceNotImplementedError < StandardError; end
-    class PayNotImplementedError < StandardError; end
-    class ErrorNotImplementedError < StandardError; end
+    class ServiceNotImplemented < StandardError; end
+    class PayMethodNotImplemented < StandardError; end
+    class ErrorMethodNotImplemented < StandardError; end
+    class RuntimeException < StandardError; end
 
     def notify
       if service.valid_notify_sign?(params[:params])
@@ -14,6 +15,8 @@ module Unitpay
       else
         fail_request
       end
+    rescue RuntimeException => e
+      fail_request(e.message)
     end
 
     def success
@@ -27,7 +30,7 @@ module Unitpay
     private
 
     def service
-      raise ServiceNotImplementedError
+      raise ServiceNotImplemented
     end
 
     def check
@@ -35,19 +38,19 @@ module Unitpay
     end
 
     def pay
-      raise PayNotImplementedError
+      raise PayMethodNotImplemented
     end
 
     def error
-      raise ErrorNotImplementedError
+      raise ErrorMethodNotImplemented
     end
 
     def success_request
       render json: { result: { message: 'Запрос успешно обработан' } }
     end
 
-    def fail_request
-      render json: { error: { message: 'Неверная сигнатура' } }
+    def fail_request(message = 'Неверная сигнатура')
+      render json: { error: { message: message } }
     end
   end
 end
