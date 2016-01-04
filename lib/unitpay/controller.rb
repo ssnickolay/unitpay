@@ -15,8 +15,8 @@ module Unitpay
       else
         fail_request
       end
-    rescue RuntimeException
-      fail_request
+    rescue RuntimeException => e
+      fail_request(e.message)
     end
 
     def success
@@ -49,8 +49,8 @@ module Unitpay
       render json: { result: { message: 'Запрос успешно обработан' } }
     end
 
-    def fail_request
-      render json: { error: { message: 'Неверная сигнатура' } }
+    def fail_request(message = 'Неверная сигнатура')
+      render json: { error: { message: message } }
     end
   end
 end

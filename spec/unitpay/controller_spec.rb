@@ -22,9 +22,9 @@ describe Unitpay::Controller do
     end
   end
 
-  RSpec::Matchers.define :be_fail do |_|
+  RSpec::Matchers.define :be_fail do |expected = 'Неверная сигнатура'|
     match do |actual|
-      expect(actual).to eq(json: { error: { message: 'Неверная сигнатура' } })
+      expect(actual).to eq(json: { error: { message: expected } })
     end
   end
 
@@ -118,7 +118,7 @@ describe Unitpay::Controller do
           expect_any_instance_of(TestController).to receive(:pay).and_raise(Unitpay::Controller::RuntimeException)
         end
 
-        it { is_expected.to be_fail }
+        it { is_expected.to be_fail('Unitpay::Controller::RuntimeException') }
       end
     end
 
