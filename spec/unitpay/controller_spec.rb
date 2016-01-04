@@ -112,6 +112,14 @@ describe Unitpay::Controller do
 
         it { is_expected.to be_fail }
       end
+
+      context 'when pay raise runtime exception' do
+        before do
+          expect_any_instance_of(TestController).to receive(:pay).and_raise(Unitpay::Controller::RuntimeException)
+        end
+
+        it { is_expected.to be_fail }
+      end
     end
 
     describe '#error' do

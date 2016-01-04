@@ -6,6 +6,7 @@ module Unitpay
     class ServiceNotImplemented < StandardError; end
     class PayMethodNotImplemented < StandardError; end
     class ErrorMethodNotImplemented < StandardError; end
+    class RuntimeException < StandardError; end
 
     def notify
       if service.valid_notify_sign?(params[:params])
@@ -14,6 +15,8 @@ module Unitpay
       else
         fail_request
       end
+    rescue RuntimeException
+      fail_request
     end
 
     def success
