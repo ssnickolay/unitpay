@@ -128,6 +128,26 @@ class UnitpayController < ApplicationController
 end
 ```
 
+[Описание параметров, передаваемых при запросе.
+](http://help.unitpay.ru/article/35-confirmation-payment)
+
+### Исключения при обработки зароса
+
+Важно понимать, что до вызова метода `pay` происходит проверка только сигнатуры. Проверка на соответствие суммы оплаты и суммы заказа остается на вашей совести. Для удобства обработки таких ситуаций существует зарезервирваное исключение `Unitpay::Controller::ErrorMethodNotImplemented`.
+
+Пример:
+
+```ruby
+def pay
+  order = Order.find(params[:params][:account])
+  if order.total_cost == params[:params][:sum]
+    order.payed!
+  else
+    raise Unitpay::Controller::ErrorMethodNotImplemented
+  end
+end
+```
+
 ##<a name="widget"></a> Подключение виджета для карт оплаты
 
 Рассмотрим один из способов реализации случая, когда необходимо показать виджет оплаты после заполнения пользователем формы заказа.
