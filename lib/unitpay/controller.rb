@@ -3,9 +3,9 @@ module Unitpay
     # Skip RequestForgeryProtection
     # skip_before_filter :verify_authenticity_token
 
-    class ServiceNotImplementedError < StandardError; end
-    class PayNotImplementedError < StandardError; end
-    class ErrorNotImplementedError < StandardError; end
+    class ServiceNotImplemented < StandardError; end
+    class PayMethodNotImplemented < StandardError; end
+    class ErrorMethodNotImplemented < StandardError; end
 
     def notify
       if service.valid_notify_sign?(params[:params])
@@ -27,7 +27,7 @@ module Unitpay
     private
 
     def service
-      raise ServiceNotImplementedError
+      raise ServiceNotImplemented
     end
 
     def check
@@ -35,11 +35,11 @@ module Unitpay
     end
 
     def pay
-      raise PayNotImplementedError
+      raise PayMethodNotImplemented
     end
 
     def error
-      raise ErrorNotImplementedError
+      raise ErrorMethodNotImplemented
     end
 
     def success_request

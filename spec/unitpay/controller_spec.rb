@@ -98,7 +98,7 @@ describe Unitpay::Controller do
 
       it 'should raise not implemented error' do
         controller = TestController.new
-        expect{ controller.notify }.to raise_error(Unitpay::Controller::PayNotImplementedError)
+        expect{ controller.notify }.to raise_error(Unitpay::Controller::PayMethodNotImplemented)
       end
 
       context 'when valid signature' do
@@ -119,7 +119,7 @@ describe Unitpay::Controller do
 
       it 'should raise not implemented error' do
         controller = TestController.new
-        expect{ controller.notify }.to raise_error(Unitpay::Controller::ErrorNotImplementedError)
+        expect{ controller.notify }.to raise_error(Unitpay::Controller::ErrorMethodNotImplemented)
       end
 
       context 'when valid signature' do
