@@ -56,7 +56,7 @@ describe Unitpay::Controller do
           profit: '9.5',
           sum: sum,
           orderSum: '10.00',
-          sign: '22905cade6376990a030b2200f664842',
+          signature: 'd7e8b05076233043ea1d6cbcf6f8134fe1f6e7e74cc1c5d243c64ff9d6b5d6e5',
           orderCurrency: 'RUB',
           unitpayId: '87370'
         }

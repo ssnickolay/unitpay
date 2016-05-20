@@ -9,7 +9,7 @@ module Unitpay
     class RuntimeException < StandardError; end
 
     def notify
-      if service.valid_notify_sign?(params[:params])
+      if service.valid_notify_signature?(params[:params])
         send(params[:method])
         success_request
       else

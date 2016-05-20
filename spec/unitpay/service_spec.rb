@@ -4,26 +4,26 @@ describe Unitpay::Service do
   let(:sum) { 100 }
   let(:account) { 1 }
   let(:desc) { 'description' }
-  let(:valid_sign) { '77e882339ca432b8ad9594b55d33ce59' }
+  let(:valid_signature) { '2053205d12e1b73ca6f42cf1cc9289a05aefd34f6e5ab9cb043e00494ae4b03c' }
   let(:use_sign) { true }
 
   describe '#calculate_sign' do
     subject { service.send(:calculate_sign, sum, account, desc) }
 
-    it { is_expected.to eq(valid_sign) }
+    it { is_expected.to eq(valid_signature) }
   end
 
   describe '#valid_sign?' do
-    subject { service.valid_sign?(sign, sum, account, desc) }
+    subject { service.valid_signature?(signature, sum, account, desc) }
 
-    context 'when valid sing' do
-      let(:sign) { valid_sign }
+    context 'when valid signature' do
+      let(:signature) { valid_signature }
 
       it { is_expected.to be_truthy }
     end
 
-    context 'when invalid sign' do
-      let(:sign) { '1' }
+    context 'when invalid signature' do
+      let(:signature) { '1' }
 
       it { is_expected.to be_falsey }
     end
@@ -31,7 +31,7 @@ describe Unitpay::Service do
 
 
   describe '#valid_notify_sign?' do
-    subject { service.valid_notify_sign?(params) }
+    subject { service.valid_notify_signature?(params) }
 
     let(:params) do
       {
@@ -44,7 +44,7 @@ describe Unitpay::Service do
         profit: '9.5',
         sum: amount,
         orderSum: '10.00',
-        sign: '22905cade6376990a030b2200f664842',
+        signature: 'd7e8b05076233043ea1d6cbcf6f8134fe1f6e7e74cc1c5d243c64ff9d6b5d6e5',
         orderCurrency: 'RUB',
         unitpayId: '87370'
       }
@@ -68,7 +68,7 @@ describe Unitpay::Service do
     subject { service.payment_params(sum, account, desc, options) }
 
     context 'when simple params' do
-      it { is_expected.to eq(sum: sum, account: account, desc: desc, sign: valid_sign, currency: 'RUB') }
+      it { is_expected.to eq(sum: sum, account: account, desc: desc, signature: valid_signature, currency: 'RUB') }
     end
 
     context 'when dont use sign' do
@@ -88,12 +88,12 @@ describe Unitpay::Service do
   describe '#params_for_widget' do
     subject { service.params_for_widget(sum, account, desc) }
 
-    it { is_expected.to eq(publicKey: 'public_key', sum: sum, account: account, desc: desc, sign: valid_sign, currency: 'RUB') }
+    it { is_expected.to eq(publicKey: 'public_key', sum: sum, account: account, desc: desc, signature: valid_signature, currency: 'RUB') }
   end
 
   describe '#payment_url' do
     subject { service.payment_url(sum, account, desc) }
 
-    it { is_expected.to eq 'https://unitpay.ru/pay/public_key?sum=100&account=1&desc=description&currency=RUB&sign=77e882339ca432b8ad9594b55d33ce59' }
+    it { is_expected.to eq "https://unitpay.ru/pay/public_key?sum=100&account=1&desc=description&currency=RUB&signature=#{ valid_signature }" }
   end
 end
