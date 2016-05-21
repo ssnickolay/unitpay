@@ -56,7 +56,7 @@ describe Unitpay::Controller do
           profit: '9.5',
           sum: sum,
           orderSum: '10.00',
-          sign: '22905cade6376990a030b2200f664842',
+          signature: signature,
           orderCurrency: 'RUB',
           unitpayId: '87370'
         }
@@ -79,6 +79,7 @@ describe Unitpay::Controller do
 
     describe '#check' do
       let(:method) { 'check' }
+      let(:signature) { 'df236bfc284beb1a922ceb1f98b4ddb23ac87d5761fcc71acbf09bc06aeca720' }
 
       context 'when valid signature' do
         before { expect_any_instance_of(TestController).to receive(:check) }
@@ -95,6 +96,7 @@ describe Unitpay::Controller do
 
     describe '#pay' do
       let(:method) { 'pay' }
+      let(:signature) { '997061638b15026374257f483e3b55b81727fe53fd329fdb34fda4dc2ab3e245' }
 
       it 'should raise not implemented error' do
         controller = TestController.new
@@ -124,6 +126,7 @@ describe Unitpay::Controller do
 
     describe '#error' do
       let(:method) { 'error' }
+      let(:signature) { '9b3952eb48958f151a86964382b1808f5a9f969ecd6da204c2243b250c3edeb8' }
 
       it 'should raise not implemented error' do
         controller = TestController.new

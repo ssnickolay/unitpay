@@ -19,12 +19,12 @@ module Unitpay
       main_params(sum, account, desc).merge(publicKey: public_key)
     end
 
-    def valid_sign?(current_sign, sum, account, desc)
+    def valid_signature?(current_sign, sum, account, desc)
       current_sign == calculate_sign(sum, account, desc)
     end
 
-    def valid_notify_sign?(params)
-      params[:sign] == calculate_notify_sign(params)
+    def valid_action_signature?(method, params)
+      params[:signature] == calculate_action_sign(method, params)
     end
 
     private
@@ -32,17 +32,26 @@ module Unitpay
     attr_reader :public_key, :secret_key, :currency, :use_sign
 
     def calculate_sign(sum, account, desc)
-      Digest::MD5.hexdigest( [account, currency, desc, sum, secret_key].join )
+      signature_of([ account, currency, desc, sum, secret_key ])
     end
 
-    def calculate_notify_sign(params)
-      params.delete(:sign)
-      values = Hash[ params.sort ].values + [ secret_key ]
-      Digest::MD5.hexdigest(values.join)
+    def calculate_action_sign(method, params)
+      sign_params = params.dup
+      sign_params.delete(:sign)
+      sign_params.delete(:signature)
+
+      values = Hash[ sign_params.sort ].values + [ secret_key ]
+      values.unshift(method)
+
+      signature_of(values)
     end
+
+    def signature_of(arr)
+      Digest::SHA256.hexdigest(arr.join('{up}'))
+    end  
 
     def main_params(sum, account, desc)
-      sign = use_sign ? { sign: calculate_sign(sum, account, desc) } : {}
+      sign = use_sign ? { signature: calculate_sign(sum, account, desc) } : {}
 
       {
         sum: sum,
