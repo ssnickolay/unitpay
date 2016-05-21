@@ -32,7 +32,7 @@ module Unitpay
     attr_reader :public_key, :secret_key, :currency, :use_sign
 
     def calculate_sign(sum, account, desc)
-      Digest::SHA256.hexdigest([ account, currency, desc, sum, secret_key ].join('{up}'))
+      signature_of([ account, currency, desc, sum, secret_key ])
     end
 
     def calculate_action_sign(method, params)
@@ -43,8 +43,12 @@ module Unitpay
       values = Hash[ sign_params.sort ].values + [ secret_key ]
       values.unshift(method)
 
-      Digest::SHA256.hexdigest(values.join('{up}'))
+      signature_of(values)
     end
+
+    def signature_of(arr)
+      Digest::SHA256.hexdigest(arr.join('{up}'))
+    end  
 
     def main_params(sum, account, desc)
       sign = use_sign ? { signature: calculate_sign(sum, account, desc) } : {}
