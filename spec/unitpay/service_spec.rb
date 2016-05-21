@@ -30,8 +30,8 @@ describe Unitpay::Service do
   end
 
 
-  describe '#valid_notify_sign?' do
-    subject { service.valid_notify_signature?(params) }
+  describe '#valid_action_signature?' do
+    subject { service.valid_action_signature?(method, params) }
 
     let(:params) do
       {
@@ -44,11 +44,12 @@ describe Unitpay::Service do
         profit: '9.5',
         sum: amount,
         orderSum: '10.00',
-        signature: 'd7e8b05076233043ea1d6cbcf6f8134fe1f6e7e74cc1c5d243c64ff9d6b5d6e5',
+        signature: 'df236bfc284beb1a922ceb1f98b4ddb23ac87d5761fcc71acbf09bc06aeca720',
         orderCurrency: 'RUB',
         unitpayId: '87370'
       }
     end
+    let(:method) { 'check' }
 
     context 'when valid' do
       let(:amount) { 10 }

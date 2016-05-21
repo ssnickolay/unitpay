@@ -23,8 +23,8 @@ module Unitpay
       current_sign == calculate_sign(sum, account, desc)
     end
 
-    def valid_notify_signature?(params)
-      params[:signature] == calculate_notify_sign(params)
+    def valid_action_signature?(method, params)
+      params[:signature] == calculate_action_sign(method, params)
     end
 
     private
@@ -35,11 +35,13 @@ module Unitpay
       Digest::SHA256.hexdigest([ account, currency, desc, sum, secret_key ].join('{up}'))
     end
 
-    def calculate_notify_sign(params)
-      params.delete(:sign)
-      params.delete(:signature)
-      params.delete(:method)
-      values = Hash[ params.sort ].values + [ secret_key ]
+    def calculate_action_sign(method, params)
+      sign_params = params.dup
+      sign_params.delete(:sign)
+      sign_params.delete(:signature)
+
+      values = Hash[ sign_params.sort ].values + [ secret_key ]
+      values.unshift(method)
 
       Digest::SHA256.hexdigest(values.join('{up}'))
     end
