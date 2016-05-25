@@ -62,6 +62,18 @@ describe Unitpay::Service do
 
       it { is_expected.to be_falsey }
     end
+
+    context 'when params is nil' do
+      let(:params) { nil }
+
+      it { is_expected.to be_falsey }
+    end
+
+    context 'when params signature is nil' do
+      let(:params) { {} }
+
+      it { is_expected.to be_falsey }
+    end
   end
 
   describe '#payment_params' do
