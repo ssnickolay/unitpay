@@ -24,6 +24,7 @@ module Unitpay
     end
 
     def valid_action_signature?(method, params)
+      return false if params.nil? || params[:signature].nil?
       params[:signature] == calculate_action_sign(method, params)
     end
 
